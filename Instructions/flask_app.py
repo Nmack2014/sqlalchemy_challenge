@@ -15,7 +15,7 @@ Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 
-
+session = Session(engine)
 
 # 2. Create an app, being sure to pass __name__
 app = Flask(__name__)
@@ -24,8 +24,12 @@ app = Flask(__name__)
 # 3. Define what to do when a user hits the index route
 @app.route("/")
 def home():
-    print("Server received request for 'Home' page...")
-    return "Welcome to my 'Home' page!"
+    print("Server received request for 'home' page...")
+    return (f"<h2>Climate App HomePage</h2><br/>"
+    f"<ul><li>Precipitation Page - <code>/api/v1.0/precipitation</code></li></ul>"
+    f"<ul><li>Stations Page- <code>/api/v1.0/stations</code></li></ul>"
+    f"<ul><li>Temperature Observations Page- <code>/api/v1.0/tobs</code></li></ul>"
+    )
 
 
 # 4. Define what to do when a user hits the /about route
@@ -33,35 +37,28 @@ def home():
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     
-    session = Session(engine)
+   
     print("Server received request for 'precipitation' page...")
     
-    
 
-    prcp_query = session.query(Measurement.date, Measurement.prcp).all()
+    prcp_query = session.query(Measurement.date, Measurement.prcp).all()  
+    prcp_dict = prcp_query.__dict__
     
-    prcp_list = []
+    return jsonify(prcp_dict)
 
-    for date, prcp in prcp_query:
-        prcp_dict = {}
-        prcp_dict[date] = prcp
-        prcp_list.append(prcp_dict) 
+@app.route("/api/v1.0/stations")
+def stations():
+    print("Server received request for 'precipitation' page...")
     
-    #prcp_dict = prcp_query.__dict__
+    station_query = session.query(Measurement.station).distinct().all()
+    station_dict = station_query.__dict__
     
-    session.close()
-    return jsonify(prcp_list)
-
-#@app.route("/api/v1.0/stations")
-#def stations():
-#    print("Server received request for 'precipitation' page...")
-#    station_query = session.query(Measurement.station).distinct().all()
-#    for results in station_query:
-#        station_list.append
-    
-  
+    return jsonify(station_dict)
 
 
+
+
+session.close()
 
 if __name__ == "__main__":
     app.run(debug=True)
